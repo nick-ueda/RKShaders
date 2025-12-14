@@ -28,11 +28,24 @@ class ShaderManager: ObservableObject {
         // Remove all existing children
         sceneAnchor.children.removeAll()
 
+        // Generate random rotation axis (normalized)
+        let randomAxis = simd_normalize(SIMD3<Float>(
+            Float.random(in: -1...1),
+            Float.random(in: -1...1),
+            Float.random(in: -1...1)
+        ))
+
+        // Random rotation speed (radians per second)
+        let rotationSpeed = Float.random(in: 0.3...0.8)
+
         // Create main sphere with surface shader
         let material = createMaterial(shaderName: currentShader.surfaceShaderName)
         let sphereEntity = ModelEntity(mesh: sphereMesh, materials: [material])
         sphereEntity.position = [0, 0, 0]
         sceneAnchor.addChild(sphereEntity)
+
+        // Add continuous rotation to main sphere
+        addContinuousRotation(to: sphereEntity, axis: randomAxis, speed: rotationSpeed)
 
         // Add envelope sphere if shader has one
         if let envelopeShaderName = currentShader.envelopeShaderName {
@@ -40,6 +53,9 @@ class ShaderManager: ObservableObject {
             let outerSphereEntity = ModelEntity(mesh: outerSphereMesh, materials: [envelopeMaterial])
             outerSphereEntity.position = [0, 0, 0]
             sceneAnchor.addChild(outerSphereEntity)
+
+            // Add same rotation to outer sphere
+            addContinuousRotation(to: outerSphereEntity, axis: randomAxis, speed: rotationSpeed)
         }
 
         // Add particles if shader uses them
@@ -133,6 +149,40 @@ class ShaderManager: ObservableObject {
         ambientLight.position = [0, 0, 2]
 
         anchor.addChild(ambientLight)
+    }
+
+    /// Add continuous rotation animation to an entity
+    private func addContinuousRotation(to entity: Entity, axis: SIMD3<Float>, speed: Float) {
+        // Create a rotation around the specified axis
+        let rotationAngle = Float.pi * 2 // Full rotation (360 degrees)
+        let duration: TimeInterval = TimeInterval(rotationAngle / speed)
+
+        // Create start and end rotation quaternions
+        let startRotation = simd_quatf(angle: 0, axis: axis)
+        let endRotation = simd_quatf(angle: rotationAngle, axis: axis)
+
+        // Create transforms
+        var startTransform = entity.transform
+        startTransform.rotation = startRotation
+
+        var endTransform = entity.transform
+        endTransform.rotation = endRotation
+
+        // Create rotation animation from start to end
+        let animation = FromToByAnimation(
+            name: "continuousRotation",
+            from: startTransform,
+            to: endTransform,
+            duration: duration,
+            timing: .linear,
+            isAdditive: true,  // Make it additive for continuous rotation
+            bindTarget: .transform
+        )
+
+        // Generate and play the animation on infinite repeat
+        if let animationResource = try? AnimationResource.generate(with: animation) {
+            entity.playAnimation(animationResource.repeat())
+        }
     }
 
     /// Switch to a new shader
