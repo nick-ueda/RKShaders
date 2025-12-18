@@ -13,61 +13,97 @@ import UIKit
 struct MetallicRedCircle: View {
     var body: some View {
         ZStack {
-            // Base red circle
+            // Base red circle with darker tone for metal
             Circle()
-                .fill(Color.red)
+                .fill(
+                    Color(red: 0.6, green: 0.1, blue: 0.1)
+                )
 
-            // Metallic gradient overlay (creates the sheen)
+            // Dark metallic gradient (high contrast shadows)
             Circle()
                 .fill(
                     RadialGradient(
                         gradient: Gradient(stops: [
-                            .init(color: Color.white.opacity(0.5), location: 0.0),
-                            .init(color: Color.white.opacity(0.25), location: 0.25),
-                            .init(color: Color.clear, location: 0.45),
-                            .init(color: Color.black.opacity(0.15), location: 0.75),
-                            .init(color: Color.black.opacity(0.4), location: 1.0)
+                            .init(color: Color.clear, location: 0.0),
+                            .init(color: Color.clear, location: 0.4),
+                            .init(color: Color.black.opacity(0.4), location: 0.7),
+                            .init(color: Color.black.opacity(0.7), location: 1.0)
                         ]),
                         center: UnitPoint(x: 0.3, y: 0.3),
-                        startRadius: 5,
-                        endRadius: 120
+                        startRadius: 0,
+                        endRadius: 100
+                    )
+                )
+
+            // Bright metallic reflection zone
+            Circle()
+                .fill(
+                    RadialGradient(
+                        gradient: Gradient(stops: [
+                            .init(color: Color.white.opacity(0.4), location: 0.0),
+                            .init(color: Color.white.opacity(0.2), location: 0.3),
+                            .init(color: Color.clear, location: 0.5)
+                        ]),
+                        center: UnitPoint(x: 0.3, y: 0.3),
+                        startRadius: 0,
+                        endRadius: 80
                     )
                 )
                 .blendMode(.overlay)
 
-            // Soft specular highlight
+            // Sharp specular highlight (key for metal look)
             Circle()
                 .fill(
                     RadialGradient(
                         gradient: Gradient(stops: [
-                            .init(color: Color.white.opacity(0.6), location: 0.0),
-                            .init(color: Color.white.opacity(0.3), location: 0.4),
-                            .init(color: Color.clear, location: 0.8)
+                            .init(color: Color.white, location: 0.0),
+                            .init(color: Color.white.opacity(0.8), location: 0.2),
+                            .init(color: Color.white.opacity(0.4), location: 0.5),
+                            .init(color: Color.clear, location: 1.0)
                         ]),
                         center: .center,
                         startRadius: 0,
-                        endRadius: 35
+                        endRadius: 20
                     )
                 )
-                .frame(width: 60, height: 60)
-                .offset(x: -35, y: -35)
-                .blendMode(.screen)
+                .frame(width: 40, height: 40)
+                .offset(x: -30, y: -30)
+                .blendMode(.plusLighter)
 
-            // Edge definition
+            // Secondary smaller highlight
+            Circle()
+                .fill(
+                    RadialGradient(
+                        gradient: Gradient(stops: [
+                            .init(color: Color.white.opacity(0.8), location: 0.0),
+                            .init(color: Color.clear, location: 1.0)
+                        ]),
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: 8
+                    )
+                )
+                .frame(width: 16, height: 16)
+                .offset(x: -25, y: -25)
+                .blendMode(.plusLighter)
+
+            // Edge highlight (rim lighting)
             Circle()
                 .stroke(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.white.opacity(0.4),
-                            Color.black.opacity(0.4)
+                    AngularGradient(
+                        gradient: Gradient(stops: [
+                            .init(color: Color.white.opacity(0.6), location: 0.0),
+                            .init(color: Color.clear, location: 0.3),
+                            .init(color: Color.black.opacity(0.5), location: 0.5),
+                            .init(color: Color.clear, location: 0.7),
+                            .init(color: Color.white.opacity(0.6), location: 1.0)
                         ]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
+                        center: .center
                     ),
-                    lineWidth: 1.5
+                    lineWidth: 2
                 )
         }
-        .shadow(color: .black.opacity(0.4), radius: 15, x: 0, y: 8)
+        .shadow(color: .black.opacity(0.5), radius: 20, x: 5, y: 10)
     }
 }
 
