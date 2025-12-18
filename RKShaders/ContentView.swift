@@ -15,7 +15,7 @@ struct MetallicRedCircle: View {
         ZStack {
             // Base red circle
             Circle()
-                .fill(Color.red)
+                .fill(Color.purple)
 
             // Metallic gradient overlay (creates the sheen)
             Circle()
